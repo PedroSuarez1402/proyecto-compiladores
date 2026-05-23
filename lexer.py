@@ -32,7 +32,7 @@ def t_NUMERO(t):
 
 
 def t_UNIDAD(t):
-    r"(gr|ml|pizca)"
+    r"(gr|ml|pizca|u|und|unidad|pza|pz)"
     return t
 
 

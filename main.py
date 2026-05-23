@@ -36,4 +36,5 @@ def compilar(payload: CompilarRequest):
         "sintaxis_correcta": sintaxis["valido"],
         "errores_sintacticos": sintaxis["errores"],
         "errores_semanticos": sintaxis["errores_semanticos"],
+        "codigo_intermedio": sintaxis["codigo_intermedio"],
     }

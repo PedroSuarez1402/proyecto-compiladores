@@ -7,6 +7,7 @@ TIPOS_INGREDIENTES = {
     "sal": "solido",
     "agua": "liquido",
     "leche": "liquido",
+    "huevo": "unidad",
 }
 
 
@@ -18,6 +19,14 @@ def verificar_semantica(ingrediente, unidad):
     if tipo is None:
         raise SemanticError(f"Error: Ingrediente desconocido '{ingrediente}'")
 
+    if unidad in {"u", "und", "unidad", "pza", "pz"}:
+        if tipo != "unidad":
+            return False, "Error: Este ingrediente no se mide por unidades"
+        return True, None
+
+    if tipo == "unidad":
+        return False, "Error: Este ingrediente se mide por unidades"
+
     if unidad == "gr" and tipo == "liquido":
         return False, "Error: No se pueden medir líquidos en gramos"
 
@@ -25,4 +34,3 @@ def verificar_semantica(ingrediente, unidad):
         return False, "Error: No se pueden medir sólidos en mililitros"
 
     return True, None
-
