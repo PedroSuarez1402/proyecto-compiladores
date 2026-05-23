@@ -1,0 +1,9 @@
+.git
+__pycache__
+*.pyc
+.venv
+venv
+parser.out
+parsetab.py
+*.log
+.DS_Store

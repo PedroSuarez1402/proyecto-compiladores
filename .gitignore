@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.log
+
+.venv/
+venv/
+.env
+
+.vercel/
+
+parsetab.py
+parser.out
+
+.DS_Store
