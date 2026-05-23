@@ -1,7 +1,7 @@
 class SemanticError(Exception):
     pass
 
-
+# Diccionario de tipos de ingredientes
 TIPOS_INGREDIENTES = {
     "harina": "solido",
     "sal": "solido",
@@ -13,7 +13,7 @@ TIPOS_INGREDIENTES = {
 
 variables = {}
 
-
+# Funcion para verificar la semantica de una instruccion de agregar
 def verificar_semantica(ingrediente, unidad):
     tipo = TIPOS_INGREDIENTES.get(ingrediente)
     if tipo is None:

@@ -5,7 +5,7 @@ import lexer as lexer_mod
 from lexer import tokens
 from semantic import SemanticError, verificar_semantica
 
-
+# Variables globales
 errores_sintacticos = []
 errores_semanticos = []
 codigo_intermedio = []
@@ -15,7 +15,7 @@ label_counter = 0
 
 _texto_actual = ""
 
-
+# Funciones auxiliares
 def _find_column(texto, lexpos):
     last_cr = texto.rfind("\n", 0, lexpos)
     if last_cr < 0:
@@ -34,7 +34,7 @@ def new_label():
     label_counter += 1
     return f"L{label_counter}"
 
-
+# Reglas sintacticas
 def p_receta(p):
     "receta : instrucciones"
 
@@ -117,7 +117,7 @@ def p_asignacion(p):
     "asignacion : VARIABLE IGUAL INGREDIENTE PUNTO_COMA"
     p[0] = f"{p[1]} = {p[3]}"
 
-
+# Error handler
 def p_error(p):
     if not p:
         errores_sintacticos.append(
@@ -146,10 +146,10 @@ def p_error(p):
     parser.errok()
     return tok
 
-
+# Parser
 parser = yacc.yacc(start="receta", write_tables=False, debug=False, errorlog=yacc.NullLogger())
 
-
+# Funcion principal
 def analizar_sintaxis(texto):
     global _texto_actual, temp_counter, label_counter
     _texto_actual = texto

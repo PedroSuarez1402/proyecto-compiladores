@@ -1,6 +1,6 @@
 import ply.lex as lex
 
-
+# Tokens
 tokens = (
     "REPETIR",
     "VECES",
@@ -13,7 +13,7 @@ tokens = (
     "PUNTO_COMA",
 )
 
-
+# Reservadas
 _RESERVADAS = {
     "REPETIR": "REPETIR",
     "VECES": "VECES",
@@ -24,7 +24,7 @@ _RESERVADAS = {
 t_IGUAL = r"="
 t_PUNTO_COMA = r";"
 
-
+# Expresiones regulares
 def t_NUMERO(t):
     r"\d+"
     t.value = int(t.value)
@@ -61,7 +61,7 @@ def _find_column(texto, lexpos):
         last_cr = -1
     return lexpos - last_cr
 
-
+# Analizador lexico principal
 def analizar_lexico(texto):
     lexer = lex.lex()
     lexer.errores = []
