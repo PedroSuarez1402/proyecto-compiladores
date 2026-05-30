@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from lexer import analizar_lexico
@@ -16,9 +17,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+
 @app.get("/")
 def home():
-    return FileResponse("index.html")
+    return FileResponse("frontend/index.html")
 
 
 class CompilarRequest(BaseModel):

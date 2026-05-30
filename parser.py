@@ -56,7 +56,7 @@ def p_instruccion(p):
     if p[1] is not None:
         codigo_intermedio.append(p[1])
 
-
+# Regla para la instruccion de agregar
 def p_instruccion_agregar(p):
     """
     instruccion_agregar : AGREGAR NUMERO UNIDAD INGREDIENTE PUNTO_COMA
