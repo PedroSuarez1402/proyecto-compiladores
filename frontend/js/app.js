@@ -18,6 +18,7 @@ const elLedEstado = $("ledEstado");
 const elBtnInspector = $("btnInspector");
 const elModal = $("modal");
 const elModalBackdrop = $("modalBackdrop");
+const elBtnReiniciar = $("btnReiniciar");
 const elBtnCerrarModal = $("btnCerrarModal");
 const elTokensTbody = $("tokensTbody");
 const elListaSolidos = $("listaSolidos");
@@ -189,6 +190,78 @@ function contieneIngredientesRequeridos(tokens, ingredientes) {
   return (ingredientes ?? []).filter((ing) => !encontrados.has(String(ing).toLowerCase()));
 }
 
+function _unidadCanonica(unidad) {
+  const u = String(unidad ?? "").toLowerCase();
+  if (["u", "und", "unidad", "pza", "pz"].includes(u)) return "u";
+  return u;
+}
+
+function compararPlato(platoFinal, platoObjetivo) {
+  const errores = [];
+  const actual = platoFinal ?? {};
+  const esperado = platoObjetivo ?? {};
+
+  for (const [ing, exp] of Object.entries(esperado)) {
+    const a = actual[ing];
+    if (!a) {
+      errores.push(`Falta: ${ing} (esperado ${exp.cantidad} ${exp.unidad})`);
+      continue;
+    }
+    const unidadAct = _unidadCanonica(a.unidad);
+    const unidadExp = _unidadCanonica(exp.unidad);
+    const cantAct = Number(a.cantidad);
+    const cantExp = Number(exp.cantidad);
+
+    if (unidadAct !== unidadExp) {
+      errores.push(`Unidad incorrecta en ${ing}: esperado ${unidadExp}, recibido ${unidadAct}`);
+      continue;
+    }
+    if (!Number.isFinite(cantAct) || cantAct !== cantExp) {
+      errores.push(`Cantidad incorrecta en ${ing}: esperado ${cantExp} ${unidadExp}, recibido ${cantAct} ${unidadAct}`);
+    }
+  }
+
+  return { ok: errores.length === 0, errores };
+}
+
+function accionesAgregarDesdeIR(acciones) {
+  const result = [];
+  const arr = Array.isArray(acciones) ? acciones : [];
+  for (const a of arr) {
+    if (!a || typeof a !== "object") continue;
+    if (a.op === "agregar") {
+      result.push(String(a.ingrediente ?? "").toLowerCase());
+      continue;
+    }
+    if (a.op === "repetir" && a.accion && a.accion.op === "agregar") {
+      result.push(String(a.accion.ingrediente ?? "").toLowerCase());
+    }
+  }
+  return result;
+}
+
+function validarOrden(acciones, ordenRequerido) {
+  const esperado = Array.isArray(ordenRequerido) ? ordenRequerido.map((x) => String(x).toLowerCase()) : [];
+  const actual = accionesAgregarDesdeIR(acciones);
+
+  if (esperado.length === 0) return { ok: true, errores: [] };
+  if (actual.length < esperado.length) {
+    return {
+      ok: false,
+      errores: [`Orden incompleto: se esperaban ${esperado.length} pasos, pero se encontraron ${actual.length}`],
+    };
+  }
+
+  const errores = [];
+  for (let i = 0; i < esperado.length; i++) {
+    if (actual[i] !== esperado[i]) {
+      errores.push(`Paso ${i + 1}: esperado '${esperado[i]}', recibido '${actual[i] || "(vacío)"}'`);
+    }
+  }
+
+  return { ok: errores.length === 0, errores };
+}
+
 function cargarNivel(indice) {
   nivelActual = Math.max(0, Math.min(indice, levels.length - 1));
   const lvl = levels[nivelActual];
@@ -278,6 +351,39 @@ async function ejecutarPaso() {
       return;
     }
 
+    const execErrors = Array.isArray(data?.errores_ejecucion) ? data.errores_ejecucion : [];
+    if (execErrors.length > 0) {
+      setLed("red");
+      renderRobotConsole({
+        ok: false,
+        message: "Errores de ejecución",
+        errors: execErrors.map((e) => e?.mensaje ?? "Error de ejecución"),
+      });
+      return;
+    }
+
+    const { ok: platoOk, errores: platoErrores } = compararPlato(data?.plato_final, lvl?.plato_objetivo);
+    if (!platoOk) {
+      setLed("red");
+      renderRobotConsole({
+        ok: false,
+        message: "Receta válida, pero cantidades incorrectas",
+        errors: platoErrores,
+      });
+      return;
+    }
+
+    const { ok: ordenOk, errores: ordenErrores } = validarOrden(data?.acciones, lvl?.orden_requerido);
+    if (!ordenOk) {
+      setLed("red");
+      renderRobotConsole({
+        ok: false,
+        message: "Orden de pasos incorrecto",
+        errors: ordenErrores,
+      });
+      return;
+    }
+
     setLed("green");
     renderRobotConsole({ ok: true, message: "¡Perfecto! Has completado esta fase.", errors: [] });
     elBtnSiguiente.classList.remove("hidden");
@@ -318,6 +424,10 @@ elEditor.addEventListener("keydown", (ev) => {
 elBtnInspector.addEventListener("click", () => {
   openModal();
   setTab("tokens");
+});
+elBtnReiniciar.addEventListener("click", () => {
+  closeModal();
+  cargarNivel(0);
 });
 elBtnCerrarModal.addEventListener("click", closeModal);
 elModalBackdrop.addEventListener("click", closeModal);

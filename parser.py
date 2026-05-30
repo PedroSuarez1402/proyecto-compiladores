@@ -9,6 +9,7 @@ from semantic import SemanticError, verificar_semantica
 errores_sintacticos = []
 errores_semanticos = []
 codigo_intermedio = []
+acciones = []
 
 temp_counter = 0
 label_counter = 0
@@ -53,8 +54,17 @@ def p_instruccion(p):
                 | instruccion_repetir
                 | asignacion
     """
-    if p[1] is not None:
-        codigo_intermedio.append(p[1])
+    item = p[1]
+    if isinstance(item, dict):
+        codigo = item.get("codigo")
+        accion = item.get("accion")
+        if codigo is not None:
+            codigo_intermedio.append(codigo)
+        if accion is not None:
+            acciones.append(accion)
+        return
+    if item is not None:
+        codigo_intermedio.append(item)
 
 # Regla para la instruccion de agregar
 def p_instruccion_agregar(p):
@@ -62,16 +72,23 @@ def p_instruccion_agregar(p):
     instruccion_agregar : AGREGAR NUMERO UNIDAD INGREDIENTE PUNTO_COMA
                        | AGREGAR NUMERO INGREDIENTE PUNTO_COMA
     """
+    cantidad = p[2]
     if len(p) == 6:
         unidad = p[3]
         ingrediente = p[4]
         tok_ingrediente = p.slice[4]
-        p[0] = f"AGREGAR {p[2]} {unidad} {ingrediente}"
+        p[0] = {
+            "codigo": f"AGREGAR {cantidad} {unidad} {ingrediente}",
+            "accion": {"op": "agregar", "cantidad": cantidad, "unidad": unidad, "ingrediente": ingrediente},
+        }
     else:
         unidad = "u"
         ingrediente = p[3]
         tok_ingrediente = p.slice[3]
-        p[0] = f"AGREGAR {p[2]} {ingrediente}"
+        p[0] = {
+            "codigo": f"AGREGAR {cantidad} {ingrediente}",
+            "accion": {"op": "agregar", "cantidad": cantidad, "unidad": unidad, "ingrediente": ingrediente},
+        }
 
     try:
         ok, mensaje = verificar_semantica(ingrediente, unidad)
@@ -106,16 +123,16 @@ def p_instruccion_repetir(p):
     codigo_intermedio.append(f"{t} = {p[2]}")
     codigo_intermedio.append(f"{l_start}:")
     codigo_intermedio.append(f"IF {t} <= 0 GOTO {l_end}")
-    codigo_intermedio.append(p[4])
+    codigo_intermedio.append(p[4]["codigo"])
     codigo_intermedio.append(f"{t} = {t} - 1")
     codigo_intermedio.append(f"GOTO {l_start}")
     codigo_intermedio.append(f"{l_end}:")
-    p[0] = None
+    p[0] = {"accion": {"op": "repetir", "veces": p[2], "accion": p[4]["accion"]}}
 
 
 def p_asignacion(p):
     "asignacion : VARIABLE IGUAL INGREDIENTE PUNTO_COMA"
-    p[0] = f"{p[1]} = {p[3]}"
+    p[0] = {"codigo": f"{p[1]} = {p[3]}", "accion": {"op": "asignar", "variable": p[1], "valor": p[3]}}
 
 # Error handler
 def p_error(p):
@@ -157,6 +174,7 @@ def analizar_sintaxis(texto):
     errores_sintacticos.clear()
     errores_semanticos.clear()
     codigo_intermedio.clear()
+    acciones.clear()
     temp_counter = 0
     label_counter = 0
 
@@ -169,4 +187,5 @@ def analizar_sintaxis(texto):
         "errores": errores_sintacticos,
         "errores_semanticos": errores_semanticos,
         "codigo_intermedio": codigo_intermedio,
+        "acciones": acciones,
     }
