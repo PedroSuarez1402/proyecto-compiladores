@@ -20,6 +20,13 @@ const elModal = $("modal");
 const elModalBackdrop = $("modalBackdrop");
 const elBtnReiniciar = $("btnReiniciar");
 const elBtnCerrarModal = $("btnCerrarModal");
+const elFinalBackdrop = $("finalBackdrop");
+const elFinalScreen = $("finalScreen");
+const elBtnVolverIntentar = $("btnVolverIntentar");
+const elBtnRepetir = $("btnRepetir");
+const elIntroBackdrop = $("introBackdrop");
+const elIntroScreen = $("introScreen");
+const elBtnStartGame = $("btnStartGame");
 const elTokensTbody = $("tokensTbody");
 const elListaSolidos = $("listaSolidos");
 const elListaLiquidos = $("listaLiquidos");
@@ -29,6 +36,33 @@ const elBtnCopiarJson = $("btnCopiarJson");
 
 let nivelActual = 0;
 let lastResponse = null;
+let juegoIniciado = false;
+
+function openIntro() {
+  juegoIniciado = false;
+  elIntroBackdrop?.classList.remove("hidden");
+  elIntroScreen?.classList.remove("hidden");
+  elIntroScreen?.classList.add("flex");
+  elEditor.disabled = true;
+  elBtnEjecutar.disabled = true;
+  elBtnEjecutar.classList.add("opacity-50", "cursor-not-allowed");
+  elBtnInspector.disabled = true;
+  elBtnInspector.classList.add("opacity-50", "cursor-not-allowed");
+}
+
+function closeIntro() {
+  elIntroBackdrop?.classList.add("hidden");
+  elIntroScreen?.classList.add("hidden");
+  elIntroScreen?.classList.remove("flex");
+  elEditor.disabled = false;
+  elBtnEjecutar.disabled = false;
+  elBtnEjecutar.classList.remove("opacity-50", "cursor-not-allowed");
+  elBtnInspector.disabled = false;
+  elBtnInspector.classList.remove("opacity-50", "cursor-not-allowed");
+  juegoIniciado = true;
+  cargarNivel(0);
+  queueMicrotask(() => elEditor.focus());
+}
 
 function escapeHtml(value) {
   return String(value)
@@ -63,6 +97,18 @@ function closeModal() {
   elModal.classList.add("hidden");
   elModal.classList.remove("flex");
   elModalBackdrop.classList.add("hidden");
+}
+
+function openFinalScreen() {
+  elFinalScreen.classList.remove("hidden");
+  elFinalScreen.classList.add("flex");
+  elFinalBackdrop.classList.remove("hidden");
+}
+
+function closeFinalScreen() {
+  elFinalScreen.classList.add("hidden");
+  elFinalScreen.classList.remove("flex");
+  elFinalBackdrop.classList.add("hidden");
 }
 
 function setTab(tabName) {
@@ -269,6 +315,7 @@ function cargarNivel(indice) {
   elPapel.textContent = lvl ? lvl.instrucciones : "";
   elEditor.value = "";
   elBtnSiguiente.classList.add("hidden");
+  closeFinalScreen();
   setLed("blue");
   elApiStatus.textContent = "idle";
   lastResponse = null;
@@ -294,6 +341,7 @@ async function compilar(receta) {
 }
 
 async function ejecutarPaso() {
+  if (!juegoIniciado) return;
   const receta = elEditor.value ?? "";
   elBtnEjecutar.disabled = true;
   elBtnEjecutar.classList.add("opacity-70");
@@ -385,6 +433,13 @@ async function ejecutarPaso() {
     }
 
     setLed("green");
+    if (nivelActual >= levels.length - 1) {
+      renderRobotConsole({ ok: true, message: "¡Hamburguesa completada! 🎉", errors: [] });
+      elBtnSiguiente.classList.add("hidden");
+      openFinalScreen();
+      return;
+    }
+
     renderRobotConsole({ ok: true, message: "¡Perfecto! Has completado esta fase.", errors: [] });
     elBtnSiguiente.classList.remove("hidden");
   } catch (e) {
@@ -406,6 +461,7 @@ function siguienteNivel() {
     setLed("green");
     renderRobotConsole({ ok: true, message: "¡Hamburguesa completada! 🎉", errors: [] });
     elBtnSiguiente.classList.add("hidden");
+    openFinalScreen();
     return;
   }
   cargarNivel(nivelActual + 1);
@@ -413,6 +469,7 @@ function siguienteNivel() {
 
 elBtnEjecutar.addEventListener("click", ejecutarPaso);
 elBtnSiguiente.addEventListener("click", siguienteNivel);
+elBtnStartGame?.addEventListener("click", closeIntro);
 
 elEditor.addEventListener("keydown", (ev) => {
   if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) {
@@ -432,10 +489,23 @@ elBtnReiniciar.addEventListener("click", () => {
 elBtnCerrarModal.addEventListener("click", closeModal);
 elModalBackdrop.addEventListener("click", closeModal);
 document.addEventListener("keydown", (ev) => {
-  if (ev.key === "Escape") closeModal();
+  if (ev.key === "Escape") {
+    closeModal();
+    closeFinalScreen();
+  }
 });
 document.querySelectorAll(".tabBtn").forEach((btn) => {
   btn.addEventListener("click", () => setTab(btn.dataset.tab));
+});
+
+elFinalBackdrop.addEventListener("click", closeFinalScreen);
+elBtnVolverIntentar.addEventListener("click", () => {
+  closeFinalScreen();
+  cargarNivel(levels.length - 1);
+});
+elBtnRepetir.addEventListener("click", () => {
+  closeFinalScreen();
+  cargarNivel(0);
 });
 
 elBtnCopiarJson.addEventListener("click", async () => {
@@ -451,4 +521,4 @@ elBtnCopiarJson.addEventListener("click", async () => {
 });
 
 renderSimbolos();
-cargarNivel(0);
+openIntro();

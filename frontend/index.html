@@ -248,6 +248,74 @@
       </div>
     </div>
 
+    <div id="introBackdrop" class="fixed inset-0 z-50 bg-black/80"></div>
+    <div id="introScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+      <div class="w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 shadow-2xl">
+        <div class="px-6 py-8 sm:px-10 sm:py-10">
+          <div class="mx-auto flex max-w-xl flex-col items-center text-center">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600/20 text-2xl">🤖</div>
+            <h2 class="mt-4 text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">
+              Iniciar Juego: Compilación de Hamburguesa
+            </h2>
+            <p class="mt-3 text-sm leading-6 text-slate-400">
+              Completa 4 niveles (Pan, Carne, Salsa y Armado). El robot validará léxico, sintaxis, semántica, cantidades y orden de pasos.
+            </p>
+
+            <button
+              id="btnStartGame"
+              type="button"
+              class="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-4 text-base font-semibold text-white shadow-xl shadow-indigo-600/25 transition-all duration-300 hover:scale-[1.02] hover:bg-indigo-500 active:bg-indigo-700 sm:w-auto"
+            >
+              🍔 INICIAR COMPILACIÓN
+            </button>
+
+            <div class="mt-5 text-xs text-slate-500">
+              Tip: Usa Ctrl + Enter para ejecutar el paso.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="finalBackdrop" class="fixed inset-0 z-50 hidden bg-black/80"></div>
+    <div id="finalScreen" class="fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+      <div class="w-full max-w-2xl overflow-hidden rounded-2xl border border-emerald-900/50 bg-slate-950 shadow-2xl">
+        <div class="border-b border-slate-800 px-6 py-5">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600/20 text-xl">👨‍🍳</div>
+            <div>
+              <h3 class="text-base font-semibold text-slate-100">¡Felicidades, construiste una hamburguesa!</h3>
+              <p class="mt-1 text-xs text-slate-400">Robot Kitchen OS: plato finalizado y validado.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-6 py-6">
+          <div class="rounded-xl border border-emerald-900/40 bg-emerald-950/30 px-4 py-4">
+            <div class="text-sm font-semibold text-emerald-300">Hamburguesa completada ✅</div>
+            <div class="mt-2 text-xs text-emerald-200/70">Puedes repetir el armado o reiniciar toda la experiencia.</div>
+          </div>
+
+          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <button
+              id="btnVolverIntentar"
+              type="button"
+              class="inline-flex w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-950 px-5 py-3 text-sm font-semibold text-slate-200 transition-all duration-300 hover:bg-slate-900 sm:w-auto"
+            >
+              Volver a intentarlo
+            </button>
+            <button
+              id="btnRepetir"
+              type="button"
+              class="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all duration-300 hover:bg-emerald-500 active:bg-emerald-700 sm:w-auto"
+            >
+              Repetir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/static/js/app.js"></script>
   </body>
 </html>
