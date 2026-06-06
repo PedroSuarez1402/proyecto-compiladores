@@ -31,7 +31,8 @@ En esta fase:
 - `lexer.py`: analizador léxico (tokens + errores léxicos con línea/columna).
 - `parser.py`: analizador sintáctico (validación + errores sintácticos con línea/columna).
 - `semantic.py`: reglas semánticas (tipo de ingrediente y validación unidad vs tipo).
-- `index.html`: interfaz web (editor + consola + panel de inspección).
+- `vm.py`: ejecución/validación en “Memoria Virtual”.
+- `frontend/`: aplicación React (Vite) + Tailwind (UI del “videojuego”).
 - `requirements.txt`: dependencias mínimas.
 
 ## Requisitos
@@ -41,6 +42,11 @@ En esta fase:
 ## Guía de comandos (ejecución)
 
 > Recomendado: usar **entorno virtual** para evitar problemas de instalación en el sistema (PEP 668).
+
+### Requisitos
+
+- Python 3.10+
+- Node.js 18+ (recomendado) para el frontend React
 
 ### 1) Crear y activar entorno virtual
 
@@ -72,9 +78,27 @@ Por defecto queda en:
 
 - `http://127.0.0.1:8000`
 - Docs Swagger: `http://127.0.0.1:8000/docs`
-- UI: `http://127.0.0.1:8000/`
 
-### 4) Probar el endpoint `/compilar`
+### 4) Ejecutar el frontend (React + Vite)
+
+En otra terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abre:
+
+- `http://127.0.0.1:5173`
+
+Notas:
+
+- En desarrollo, Vite usa un proxy para enviar `POST /compilar` al backend en `http://127.0.0.1:8000`.
+- Si el backend no está corriendo en 8000, la UI no podrá compilar recetas.
+
+### 5) Probar el endpoint `/compilar` (opcional)
 
 Con `curl`:
 
@@ -168,10 +192,10 @@ MI_SALSA = ;
 
 ## Despliegue (recomendado)
 
-Para una demo simple (backend + frontend juntos) se recomienda desplegar como un solo servicio usando Docker:
+Este proyecto suele desplegarse como 2 servicios:
 
-- La UI se sirve desde `GET /` (FastAPI entrega `index.html`)
-- La UI llama a la API con ruta relativa `POST /compilar`
+- **Backend FastAPI** (Render/Railway/Fly/Docker)
+- **Frontend React** en Vercel (recomendado)
 
 ### Opción A: Render (Docker)
 
@@ -194,3 +218,15 @@ Para una demo simple (backend + frontend juntos) se recomienda desplegar como un
 
 1. Instala Fly CLI y autentícate.
 2. Crea la app y despliega usando Docker (Fly detecta `Dockerfile`).
+
+### Frontend en Vercel (React)
+
+1. Crea un proyecto en Vercel apuntando al directorio `frontend/`.
+2. Build: `npm run build` (Vercel lo detecta).
+3. Output: `frontend/dist`.
+4. Configura la variable de entorno:
+   - `VITE_API_URL=https://TU-BACKEND` (sin `/compilar`)
+
+Así, en producción el frontend llamará a:
+
+- `https://TU-BACKEND/compilar`

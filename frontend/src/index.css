@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+}
+
+@layer components {
+  .holo-layer {
+    position: relative;
+    border-radius: 9999px;
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    box-shadow:
+      0 0 18px rgba(34, 211, 238, 0.18),
+      0 0 22px rgba(232, 121, 249, 0.12);
+    background: linear-gradient(
+      135deg,
+      rgba(34, 211, 238, 0.10),
+      rgba(232, 121, 249, 0.08),
+      rgba(34, 211, 238, 0.06)
+    );
+    backdrop-filter: blur(10px);
+  }
+
+  .holo-layer::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: radial-gradient(circle at 25% 20%, rgba(232, 121, 249, 0.22), transparent 50%),
+      radial-gradient(circle at 70% 75%, rgba(34, 211, 238, 0.18), transparent 55%);
+    opacity: 0.7;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+
+  .holo-layer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.10) 0px,
+      rgba(255, 255, 255, 0.10) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    opacity: 0.10;
+    pointer-events: none;
+  }
+
+  .holo-rect {
+    border-radius: 18px;
+  }
+}
