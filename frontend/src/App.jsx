@@ -120,6 +120,7 @@ function formatErrorBlocks(resp) {
 function getCompilarUrl() {
   const base = String(import.meta.env.VITE_API_URL ?? "").trim().replace(/\/$/, "");
   if (base) return `${base}/compilar`;
+  if (import.meta.env.PROD) return "";
   return "/compilar";
 }
 
@@ -176,6 +177,14 @@ export default function App() {
 
   const run = useCallback(async () => {
     if (!started || !level || isRunning) return;
+    if (!compilarUrl) {
+      setRobotStatus({
+        state: "error",
+        title: "Falta configurar la API",
+        lines: ["Define VITE_API_URL en producción (Vercel) para apuntar al backend FastAPI."],
+      });
+      return;
+    }
     setIsRunning(true);
     setCanNext(false);
     setRobotStatus({ state: "running", title: "Compilando...", lines: [] });
