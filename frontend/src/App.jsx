@@ -118,9 +118,14 @@ function formatErrorBlocks(resp) {
 }
 
 function getCompilarUrl() {
-  const base = String(import.meta.env.VITE_API_URL ?? "").trim().replace(/\/$/, "");
-  if (base) return `${base}/compilar`;
-  if (import.meta.env.PROD) return "";
+  // Si estamos trabajando en modo local (en tu PC)
+  if (import.meta.env.MODE === 'development') {
+    return "http://127.0.0.1:8000/compilar";
+  }
+  
+  // Si estamos en producción (Vercel)
+  // Usamos solo la ruta relativa. Vercel interceptará "/compilar" 
+  // y lo enviará a tu FastAPI gracias a la configuración en vercel.json
   return "/compilar";
 }
 
