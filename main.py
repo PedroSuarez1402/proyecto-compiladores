@@ -21,8 +21,7 @@ class CompilarRequest(BaseModel):
     receta: str
 
 
-@app.post("/compilar")
-def compilar(payload: CompilarRequest):
+def _compilar_impl(payload: CompilarRequest):
     lexico = analizar_lexico(payload.receta)
     sintaxis = analizar_sintaxis(payload.receta)
 
@@ -41,3 +40,11 @@ def compilar(payload: CompilarRequest):
         "plato_final": ejecucion["memoria"]["ingredientes"],
         "errores_ejecucion": ejecucion["errores"],
     }
+
+
+@app.post("/")
+@app.post("/compilar")
+@app.post("/api")
+@app.post("/api/compilar")
+def compilar(payload: CompilarRequest):
+    return _compilar_impl(payload)

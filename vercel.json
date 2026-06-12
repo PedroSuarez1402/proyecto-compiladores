@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/compilar",
-      "destination": "/api/compilar"
+      "destination": "/api"
     },
     {
       "source": "/docs",
