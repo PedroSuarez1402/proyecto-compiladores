@@ -1,29 +1,28 @@
 {
-  "version": 2,
-  "builds": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd frontend && npm install",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
     {
-      "src": "main.py",
-      "use": "@vercel/python"
+      "source": "/compilar",
+      "destination": "/api/compilar"
     },
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "^/compilar$",
-      "dest": "main.py"
+      "source": "/docs",
+      "destination": "/api/docs"
     },
     {
-      "handle": "filesystem"
+      "source": "/redoc",
+      "destination": "/api/redoc"
     },
     {
-      "src": "^/(.*)$",
-      "dest": "/index.html"
+      "source": "/openapi.json",
+      "destination": "/api/openapi.json"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
