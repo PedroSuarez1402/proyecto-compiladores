@@ -15,15 +15,15 @@
   ],
   "routes": [
     {
-      "src": "/compilar",
+      "src": "^/compilar$",
       "dest": "main.py"
     },
     {
-      "src": "/(assets/.*|.*\\.svg|.*\\.png|.*\\.ico|.*\\.css|.*\\.js)",
+      "src": "^/(assets/.*|.*\\.(?:css|js|mjs|map|json|svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot))$",
       "dest": "/frontend/dist/$1"
     },
     {
-      "src": "/(.*)",
+      "src": "^/(.*)$",
       "dest": "/frontend/dist/index.html"
     }
   ]

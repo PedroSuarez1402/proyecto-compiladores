@@ -118,14 +118,6 @@ function formatErrorBlocks(resp) {
 }
 
 function getCompilarUrl() {
-  // Si estamos trabajando en modo local (en tu PC)
-  if (import.meta.env.MODE === 'development') {
-    return "http://127.0.0.1:8000/compilar";
-  }
-  
-  // Si estamos en producción (Vercel)
-  // Usamos solo la ruta relativa. Vercel interceptará "/compilar" 
-  // y lo enviará a tu FastAPI gracias a la configuración en vercel.json
   return "/compilar";
 }
 
@@ -182,14 +174,6 @@ export default function App() {
 
   const run = useCallback(async () => {
     if (!started || !level || isRunning) return;
-    if (!compilarUrl) {
-      setRobotStatus({
-        state: "error",
-        title: "Falta configurar la API",
-        lines: ["Define VITE_API_URL en producción (Vercel) para apuntar al backend FastAPI."],
-      });
-      return;
-    }
     setIsRunning(true);
     setCanNext(false);
     setRobotStatus({ state: "running", title: "Compilando...", lines: [] });
@@ -200,7 +184,23 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ receta: userInput ?? "" }),
       });
-      const data = await res.json();
+      const raw = await res.text();
+      let data = null;
+
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          setRobotStatus({
+            state: "error",
+            title: "Respuesta inválida del servidor",
+            lines: ["La API no devolvió JSON válido. Revisa las rutas de Vercel y el endpoint /compilar."],
+          });
+          setDebugData({ raw });
+          return;
+        }
+      }
+
       setDebugData(data);
 
       const errores = formatErrorBlocks(data);
@@ -381,11 +381,6 @@ export default function App() {
                 </button>
               </div>
               <div className="mt-5 text-xs text-slate-500">Tip: Ctrl + Enter para ejecutar.</div>
-              <div className="mt-3 text-xs text-slate-600">
-                {String(import.meta.env.PROD) === "true" && !String(import.meta.env.VITE_API_URL ?? "").trim()
-                  ? "Falta configurar VITE_API_URL para producción."
-                  : ""}
-              </div>
             </div>
           </div>
         </div>
